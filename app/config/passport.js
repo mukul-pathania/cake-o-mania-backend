@@ -1,6 +1,6 @@
 import passportLocal from 'passport-local';
 import User from '../models/User.js';
-import UserService from '../services/UserService.js';
+import AuthService from '../services/authservice.js';
 
 const SetUpPassportAuth = (passport) => {
   passport.use(
@@ -8,7 +8,7 @@ const SetUpPassportAuth = (passport) => {
       { usernameField: 'email', passReqToCallback: true },
       async (req, email, password, done) => {
         try {
-          const response = await UserService.getUserForPassportLocalStrategy(
+          const response = await AuthService.getUserForPassportLocalStrategy(
             email,
             password,
           );

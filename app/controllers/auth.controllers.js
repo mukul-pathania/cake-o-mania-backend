@@ -1,5 +1,5 @@
 import passport from 'passport';
-import UserService from '../services/UserService.js';
+import AuthService from '../services/authservice.js';
 
 const loginWithEmailPassword = (req, res) => {
   passport.authenticate('local', function (err, user, message) {
@@ -26,7 +26,7 @@ const signUpWithEmailPassword = async (req, res) => {
         message: 'Please provide all three of username, email and password',
       });
 
-    const response = await UserService.signUpWithEmailPassword(
+    const response = await AuthService.signUpWithEmailPassword(
       username,
       email,
       password,
