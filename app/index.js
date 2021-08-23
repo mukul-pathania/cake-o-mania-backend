@@ -2,11 +2,13 @@ import express from 'express';
 import helmet from 'helmet';
 import cors from 'cors';
 import passport from 'passport';
-import session from 'express-session';
+import expressWinston from 'express-winston';
+import winston from 'winston';
 import SetUpPassportAuth from './config/passport.js';
 import config from './config/index.js';
 import connectDB from './config/db.js';
 import routes from './routes/index.js';
+import logger from './util/logger.js';
 
 const PORT = config.PORT || 3000;
 
@@ -26,17 +28,19 @@ const startServer = () => {
   );
 
   SetUpPassportAuth(passport);
+
+  if (config.NODE_ENV != 'test') {
+    app.use(
+      expressWinston.logger({
+        meta: false,
+        transports: [new winston.transports.Console()],
+        expressFormat: true,
+      }),
+    );
+  }
   app.use(express.json());
   app.use(express.urlencoded({ extended: true }));
-  app.use(
-    session({
-      secret: config.SESSION_SECRET,
-      resave: false,
-      saveUninitialized: false,
-    }),
-  );
   app.use(passport.initialize());
-  app.use(passport.session());
 
   app.use('/', routes);
 
@@ -44,7 +48,7 @@ const startServer = () => {
     return res.json({ message: 'Hello World' });
   });
   return app.listen(PORT, () =>
-    console.log(`Server running on port ${PORT} in ${config.NODE_ENV} mode`),
+    logger.info(`Server running on port ${PORT} in ${config.NODE_ENV} mode`),
   );
 };
 

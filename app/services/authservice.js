@@ -1,5 +1,8 @@
 import bcrypt from 'bcrypt';
 import User from '../models/User.js';
+import logger from '../util/logger.js';
+import config from '../config/index.js';
+import JWT from 'jsonwebtoken';
 
 const getUserForPassportLocalStrategy = async (email, password) => {
   try {
@@ -67,7 +70,7 @@ const signUpWithEmailPassword = async (username, email, password) => {
       username,
       provider: 'EMAIL',
     });
-    console.log(created_user);
+    logger.info(`New user created ${created_user}`);
     // EmailService.sendSignUpEmail(created_user);
     return { error: false, message: 'User signed up successfully' };
   } catch (error) {
@@ -78,4 +81,107 @@ const signUpWithEmailPassword = async (username, email, password) => {
   }
 };
 
-export default { getUserForPassportLocalStrategy, signUpWithEmailPassword };
+const getUserForPassportGoogleSignUpStrategy = async (email, username) => {
+  try {
+    const createdUser = await User.create({
+      username: username,
+      provider: 'GOOGLE',
+      email: email,
+    });
+    return {
+      user: createdUser,
+      message: 'Signed up successfully',
+      error: false,
+    };
+  } catch (error) {
+    logger.log(
+      'error',
+      'authservice:getuserforpassportgooglesignupstrategy %O',
+      error,
+    );
+    return {
+      user: undefined,
+      message: 'An error occured while processing your request',
+      error: true,
+    };
+  }
+};
+
+const getUserForPassportGoogleLoginStrategy = async (email) => {
+  try {
+    const user = await User.findOne({ email: email, provider: 'GOOGLE' });
+    if (!user)
+      return {
+        user: undefined,
+        message:
+          'Your google account is not connected with your cakeania account',
+        error: true,
+      };
+    return {
+      user: user,
+      message: 'Logged in successfully',
+      error: false,
+    };
+  } catch (error) {
+    logger.log(
+      'error',
+      'authservice:getuserforpassportgoogleloginstrategy %O',
+      error,
+    );
+
+    return {
+      user: undefined,
+      message: 'An error occured while processing your request',
+      error: true,
+    };
+  }
+};
+
+const generateAuthToken = (user) => {
+  logger.info(
+    'authservice:generateauthtoken Generating token for user: %s',
+    user.id,
+  );
+  return JWT.sign({ username: user.username }, config.TOKEN_SECRET, {
+    expiresIn: `${config.TOKEN_VALIDITY_MINUTES}m`,
+  });
+};
+
+const generateAndWriteRefreshToken = async (user) => {
+  logger.info(
+    'authservice:generaterefreshtoken Generating token for user: %s',
+    user.id,
+  );
+  const token = JWT.sign(
+    { username: user.username },
+    config.REFRESH_TOKEN_SECRET,
+    {
+      expiresIn: `${config.REFRESH_TOKEN_VALIDITY_DAYS}d`,
+    },
+  );
+  try {
+    await User.updateOne({ email: user.email }, { refresh_token: token });
+  } catch (error) {
+    logger.log('error', 'authservice:generaterefreshtoken %O', error);
+  }
+  return token;
+};
+
+const getUserByUserName = async (username) => {
+  try {
+    return await User.findOne({ username: username });
+  } catch (error) {
+    logger.log('error', 'userservice:auth:getuserbyusername %O', error);
+    return null;
+  }
+};
+
+export default {
+  getUserForPassportLocalStrategy,
+  getUserForPassportGoogleLoginStrategy,
+  getUserForPassportGoogleSignUpStrategy,
+  generateAndWriteRefreshToken,
+  getUserByUserName,
+  generateAuthToken,
+  signUpWithEmailPassword,
+};

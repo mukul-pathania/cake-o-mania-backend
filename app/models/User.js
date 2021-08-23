@@ -13,6 +13,7 @@ const UserSchema = new mongoose.Schema(
     confirmation_sent_at: Date,
     confirmation_token: String,
     confirmed_at: String,
+    refresh_token: String,
   },
   { timestamps: true },
 );

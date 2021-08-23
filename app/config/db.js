@@ -1,4 +1,5 @@
 import mongoose from 'mongoose';
+import logger from '../util/logger.js';
 import config from './index.js';
 
 const connectDB = async () => {
@@ -9,9 +10,9 @@ const connectDB = async () => {
       useFindAndModify: false,
     });
 
-    console.log(`MongoDB Connected: ${conn.connection.host}`);
+    logger.info(`MongoDB Connected: ${conn.connection.host}`);
   } catch (err) {
-    console.error(err);
+    logger.log('error', 'db: %O', err);
     process.exit(1);
   }
 };

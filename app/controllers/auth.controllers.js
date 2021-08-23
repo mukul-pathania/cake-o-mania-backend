@@ -1,19 +1,35 @@
 import passport from 'passport';
 import AuthService from '../services/authservice.js';
+import logger from '../util/logger.js';
+import config from '../config/index.js';
 
 const loginWithEmailPassword = (req, res) => {
-  passport.authenticate('local', function (err, user, message) {
-    if (err || !user) {
-      return res.json({ ...message, error: true });
-    }
-    req.logIn(user, function (err) {
-      if (err) {
-        console.log(err);
-        return res.json({ message: 'Failed to log you in', error: true });
+  passport.authenticate(
+    'local',
+    { session: false },
+    function (err, user, message) {
+      if (err || !user) {
+        return res.json({ ...message, error: true });
       }
-      return res.json({ ...message });
-    });
-  })(req, res);
+      req.logIn(user, { session: false }, async function (err) {
+        if (err) {
+          logger.log('error', 'userservice:loginwithemailpassword %O', err);
+          return res.json({ message: 'Failed to log you in', error: true });
+        }
+        const token = AuthService.generateAuthToken(user);
+        const refreshToken = await AuthService.generateAndWriteRefreshToken(
+          user,
+        );
+
+        res.cookie('refreshToken', refreshToken, {
+          maxAge:
+            1000 * 60 * 60 * 24 * parseInt(config.REFRESH_TOKEN_VALIDITY_DAYS),
+          httpOnly: true,
+        });
+        return res.json({ ...message, error: false, token: token });
+      });
+    },
+  )(req, res);
 };
 
 const signUpWithEmailPassword = async (req, res) => {
@@ -34,7 +50,7 @@ const signUpWithEmailPassword = async (req, res) => {
 
     return res.json(response);
   } catch (error) {
-    console.log(error);
+    logger.log('error', 'authcontroller:signupwithemailpassword %O', error);
     return res.json({
       error: true,
       message: 'An error occured while processing your request',
@@ -66,9 +82,56 @@ const verify = (req, res) => {
     });
 };
 
+const googleSignUpCallback = (req, res) => {
+  passport.authenticate('googleSignup', {}, (err, user, message) => {
+    if (err || !user) {
+      const encodedMessage = encodeURIComponent(message.message);
+      return res.redirect(
+        `${config.CLIENT_URL}/auth/google/callback/signup/failed#message=${encodedMessage}`,
+      );
+    }
+    const encodedMessage = encodeURIComponent(message.message);
+    return res.redirect(
+      `${config.CLIENT_URL}/auth/google/callback/signup/success#message=${encodedMessage}`,
+    );
+  })(req, res);
+};
+
+const googleLoginCallback = (req, res) => {
+  passport.authenticate('googleLogin', {}, (err, user, message) => {
+    if (err || !user) {
+      const encodedMessage = encodeURIComponent(message.message);
+      return res.redirect(
+        `${config.CLIENT_URL}/auth/google/callback/login/failed#message=${encodedMessage}`,
+      );
+    }
+    req.logIn(user, { session: false }, async function (err) {
+      if (err) {
+        const encodedMessage = encodeURIComponent('Failed to log you in');
+        return res.redirect(
+          `${config.CLIENT_URL}/auth/google/callback/login/failed#message=${encodedMessage}`,
+        );
+      }
+      const token = AuthService.generateAuthToken(user);
+      const refreshToken = await AuthService.generateAndWriteRefreshToken(user);
+
+      res.cookie('refreshToken', refreshToken, {
+        maxAge:
+          1000 * 60 * 60 * 24 * parseInt(config.REFRESH_TOKEN_VALIDITY_DAYS),
+        httpOnly: true,
+      });
+      return res.redirect(
+        `${config.CLIENT_URL}/auth/google/callback/login/success#token=${token}`,
+      );
+    });
+  })(req, res);
+};
+
 export default {
   loginWithEmailPassword,
   signUpWithEmailPassword,
+  googleLoginCallback,
+  googleSignUpCallback,
   logout,
   verify,
 };
