@@ -114,7 +114,7 @@ const getUserForPassportGoogleLoginStrategy = async (email) => {
       return {
         user: undefined,
         message:
-          'Your google account is not connected with your cakeania account',
+          'Your google account is not connected with your cakeomania account',
         error: true,
       };
     return {

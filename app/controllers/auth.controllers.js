@@ -60,6 +60,11 @@ const signUpWithEmailPassword = async (req, res) => {
 
 const logout = (req, res) => {
   req.logOut();
+  // Remove the refresh_token
+  res.cookie('refreshToken', '', {
+    httpOnly: true,
+  });
+
   res.json({ message: 'Logged out successfully' });
 };
 
