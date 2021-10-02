@@ -83,6 +83,23 @@ const signUpWithEmailPassword = async (username, email, password) => {
 
 const getUserForPassportGoogleSignUpStrategy = async (email, username) => {
   try {
+    const user = await User.findOne({
+      $or: [{ email: email }, { username: username }],
+    });
+    if (user) {
+      if (user?.email === email)
+        return {
+          user: null,
+          message: 'User with this email is already registered',
+          error: true,
+        };
+      else
+        return {
+          user: null,
+          message: 'User with this username is already registered',
+          error: true,
+        };
+    }
     const createdUser = await User.create({
       username: username,
       provider: 'GOOGLE',
