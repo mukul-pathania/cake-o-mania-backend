@@ -88,16 +88,23 @@ const verify = (req, res) => {
 };
 
 const googleSignUpCallback = (req, res) => {
-  passport.authenticate('googleSignup', {}, (err, user, message) => {
+  passport.authenticate('googleSignup', {}, async (err, user, message) => {
     if (err || !user) {
       const encodedMessage = encodeURIComponent(message.message);
       return res.redirect(
         `${config.CLIENT_URL}/auth/google/callback/signup/failed#message=${encodedMessage}`,
       );
     }
+    const token = AuthService.generateAuthToken(user);
+    const refreshToken = await AuthService.generateAndWriteRefreshToken(user);
     const encodedMessage = encodeURIComponent(message.message);
+    res.cookie('refreshToken', refreshToken, {
+      maxAge:
+        1000 * 60 * 60 * 24 * parseInt(config.REFRESH_TOKEN_VALIDITY_DAYS),
+      httpOnly: true,
+    });
     return res.redirect(
-      `${config.CLIENT_URL}/auth/google/callback/signup/success#message=${encodedMessage}`,
+      `${config.CLIENT_URL}/auth/google/callback/signup/success#token=${token}#message=${encodedMessage}`,
     );
   })(req, res);
 };
