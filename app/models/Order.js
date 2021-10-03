@@ -4,7 +4,8 @@ const OrderSchema = new mongoose.Schema(
   {
     user: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
     address: { type: String, required: true },
-    cakes: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Cake' }],
+    cart: { type: mongoose.Types.ObjectId, ref: 'Cart' },
+    delivery_date: { type: Date, required: true },
   },
   { timestamps: true },
 );
