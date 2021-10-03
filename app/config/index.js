@@ -3,7 +3,7 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 export default {
-  CORS_ORIGIN: process.env.CORS_ORIGIN || 'http://localhost:3000/',
+  CORS_ORIGIN: process.env.CORS_ORIGIN || 'http://localhost:3000',
   SESSION_SECRET:
     process.env.SESSION_SECRET ||
     'asdufjuhtaewr98yh43noikgvrfa98y436890vfhnojihnga9-',

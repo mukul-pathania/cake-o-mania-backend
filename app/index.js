@@ -19,10 +19,8 @@ const startServer = () => {
   app.use(helmet());
   app.use(
     cors({
-      origin:
-        config.NODE_ENV === 'development'
-          ? `http://localhost:${PORT}`
-          : config.CORS_ORIGIN,
+      origin: config.CORS_ORIGIN,
+      methods: ['GET', 'POST'],
       credentials: true,
     }),
   );
