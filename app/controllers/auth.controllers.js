@@ -79,6 +79,8 @@ const verify = (req, res) => {
         isAuthenticated: true,
         username: req.user.username,
         email: req.user.email,
+        firstName: req.user.first_name,
+        lastName: req.user.last_name,
         error: false,
       })
       .status(200);
