@@ -5,7 +5,7 @@ const UserSchema = new mongoose.Schema(
     first_name: { type: String, required: true },
     last_name: { type: String, required: true },
     email: { type: String, required: true, unique: true },
-    mobile_no: { type: String, required: true },
+    mobile_no: { type: String },
     provider: { type: String, enum: ['GOOGLE', 'EMAIL'], default: 'EMAIL' },
     encrypted_password: String,
     avatar_url: String,
