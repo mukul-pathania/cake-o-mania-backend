@@ -34,17 +34,20 @@ const loginWithEmailPassword = (req, res) => {
 
 const signUpWithEmailPassword = async (req, res) => {
   try {
-    const { username, email, password } = req.body;
+    const { firstName, lastName, email, mobileNo, password } = req.body;
 
-    if (!username || !email || !password)
+    if (!firstName || !lastName || !email || !mobileNo || !password)
       return res.json({
         error: true,
-        message: 'Please provide all three of username, email and password',
+        message:
+          'Please provide all five of firstName, lastName, email, mobileNo and password',
       });
 
     const response = await AuthService.signUpWithEmailPassword(
-      username,
+      firstName,
+      lastName,
       email,
+      mobileNo,
       password,
     );
 

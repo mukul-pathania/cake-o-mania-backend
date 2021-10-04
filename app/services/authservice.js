@@ -42,38 +42,44 @@ const getUserForPassportLocalStrategy = async (email, password) => {
   }
 };
 
-const signUpWithEmailPassword = async (username, email, password) => {
+const signUpWithEmailPassword = async (
+  firstName,
+  lastName,
+  email,
+  mobileNo,
+  password,
+) => {
   try {
-    if (username.length > 40 || email.length > 40 || password.length > 40)
+    if (
+      firstName.length > 40 ||
+      lastName.length > 40 ||
+      email.length > 40 ||
+      mobileNo.length > 40 ||
+      password.length > 40
+    )
       return {
         message: 'No field should have length greater than 40',
         error: true,
       };
-    if (username.length < 4)
-      return {
-        error: true,
-        message: 'Username must contain atleast 4 characters',
-      };
     if (password.length < 6)
       return { error: true, message: 'Password must be atleast 6 characters' };
-    const user = await User.findOne({
-      $or: [{ email: email }, { username: username }],
-    });
+    const user = await User.findOne({ email: email });
     if (user?.email === email)
       return { error: true, message: 'This email is already registered' };
-    if (user?.username === username)
-      return { error: true, message: 'This username is already taken' };
     const hash = await bcrypt.hash(password, 15);
     const created_user = await User.create({
       email,
       encrypted_password: hash,
-      username,
+      first_name: firstName,
+      last_name: lastName,
+      mobile_no: mobileNo,
       provider: 'EMAIL',
     });
     logger.info(`New user created ${created_user}`);
     // EmailService.sendSignUpEmail(created_user);
     return { error: false, message: 'User signed up successfully' };
   } catch (error) {
+    logger.log('error', 'authservice:signupwithemailpassword %O', error);
     return {
       error: true,
       message: 'An error occured while processing your request',
