@@ -39,7 +39,7 @@ const signUpWithEmailPassword = async (req, res) => {
     const { firstName, lastName, email, mobileNo, password } = req.body;
 
     if (!firstName || !lastName || !email || !mobileNo || !password)
-      return res.json({
+      return res.status(422).json({
         error: true,
         message:
           'Please provide all five of firstName, lastName, email, mobileNo and password',
@@ -53,7 +53,7 @@ const signUpWithEmailPassword = async (req, res) => {
       password,
     );
 
-    return res.json(response);
+    return res.status(response.error ? 401 : 200).json(response);
   } catch (error) {
     logger.log('error', 'authcontroller:signupwithemailpassword %O', error);
     return res.json({
