@@ -9,12 +9,14 @@ const loginWithEmailPassword = (req, res) => {
     { session: false },
     function (err, user, message) {
       if (err || !user) {
-        return res.json({ ...message, error: true });
+        return res.status(401).json({ ...message, error: true });
       }
       req.logIn(user, { session: false }, async function (err) {
         if (err) {
           logger.log('error', 'userservice:loginwithemailpassword %O', err);
-          return res.json({ message: 'Failed to log you in', error: true });
+          return res
+            .status(401)
+            .json({ message: 'Failed to log you in', error: true });
         }
         const token = AuthService.generateAuthToken(user);
         const refreshToken = await AuthService.generateAndWriteRefreshToken(
@@ -26,7 +28,7 @@ const loginWithEmailPassword = (req, res) => {
             1000 * 60 * 60 * 24 * parseInt(config.REFRESH_TOKEN_VALIDITY_DAYS),
           httpOnly: true,
         });
-        return res.json({ ...message, error: false, token: token });
+        return res.status(200).json({ ...message, error: false, token: token });
       });
     },
   )(req, res);
