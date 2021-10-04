@@ -87,27 +87,22 @@ const signUpWithEmailPassword = async (
   }
 };
 
-const getUserForPassportGoogleSignUpStrategy = async (email, username) => {
+const getUserForPassportGoogleSignUpStrategy = async (
+  email,
+  firstName,
+  lastName,
+) => {
   try {
-    const user = await User.findOne({
-      $or: [{ email: email }, { username: username }],
-    });
-    if (user) {
-      if (user?.email === email)
-        return {
-          user: null,
-          message: 'User with this email is already registered',
-          error: true,
-        };
-      else
-        return {
-          user: null,
-          message: 'User with this username is already registered',
-          error: true,
-        };
-    }
+    const user = await User.findOne({ email: email });
+    if (user && user?.email === email)
+      return {
+        user: null,
+        message: 'User with this email is already registered',
+        error: true,
+      };
     const createdUser = await User.create({
-      username: username,
+      first_name: firstName,
+      last_name: lastName,
       provider: 'GOOGLE',
       email: email,
     });

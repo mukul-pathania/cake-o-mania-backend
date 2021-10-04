@@ -67,7 +67,8 @@ const SetUpPassportAuth = (passport) => {
           const response =
             await AuthService.getUserForPassportGoogleSignUpStrategy(
               profile.emails?.[0].value,
-              `${profile.displayName}${profile.id}`,
+              profile.name.givenName,
+              profile.name.familyName,
             );
           return done(null, response.user, {
             message: response.message,
