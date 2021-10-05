@@ -4,6 +4,7 @@ import cors from 'cors';
 import passport from 'passport';
 import expressWinston from 'express-winston';
 import winston from 'winston';
+import cookieParser from 'cookie-parser';
 import SetUpPassportAuth from './config/passport.js';
 import config from './config/index.js';
 import connectDB from './config/db.js';
@@ -24,6 +25,8 @@ const startServer = () => {
       credentials: true,
     }),
   );
+
+  app.use(cookieParser());
 
   SetUpPassportAuth(passport);
 

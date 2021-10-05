@@ -184,7 +184,7 @@ const generateAuthToken = (user) => {
     'authservice:generateauthtoken Generating token for user: %s',
     user.id,
   );
-  return JWT.sign({ username: user.username }, config.TOKEN_SECRET, {
+  return JWT.sign({ user_id: user._id }, config.TOKEN_SECRET, {
     expiresIn: `${config.TOKEN_VALIDITY_MINUTES}m`,
   });
 };
@@ -194,13 +194,9 @@ const generateAndWriteRefreshToken = async (user) => {
     'authservice:generaterefreshtoken Generating token for user: %s',
     user.id,
   );
-  const token = JWT.sign(
-    { username: user.username },
-    config.REFRESH_TOKEN_SECRET,
-    {
-      expiresIn: `${config.REFRESH_TOKEN_VALIDITY_DAYS}d`,
-    },
-  );
+  const token = JWT.sign({ user_id: user._id }, config.REFRESH_TOKEN_SECRET, {
+    expiresIn: `${config.REFRESH_TOKEN_VALIDITY_DAYS}d`,
+  });
   try {
     await User.updateOne({ email: user.email }, { refresh_token: token });
   } catch (error) {
@@ -209,12 +205,37 @@ const generateAndWriteRefreshToken = async (user) => {
   return token;
 };
 
-const getUserByUserName = async (username) => {
+const getUserByUserId = async (user_id) => {
   try {
-    return await User.findOne({ username: username });
+    return await User.findOne({ _id: user_id });
   } catch (error) {
-    logger.log('error', 'userservice:auth:getuserbyusername %O', error);
+    logger.log('error', 'userservice:auth:getuserbyuserid %O', error);
     return null;
+  }
+};
+
+const refreshTokenForUser = async (refreshToken) => {
+  try {
+    const decodedToken = JWT.verify(refreshToken, config.REFRESH_TOKEN_SECRET);
+    const user = await User.findOne({
+      _id: decodedToken.user_id,
+      refresh_token: refreshToken,
+    });
+    if (!user) throw new Error('Invalid token');
+    return {
+      token: generateAuthToken(user),
+      refreshToken: await generateAndWriteRefreshToken(user),
+      error: false,
+      message: 'Generated new token successfully',
+    };
+  } catch (error) {
+    logger.log('error', 'userservice:auth:refreshtokenforuser %O', error);
+    return {
+      token: '',
+      refreshToken: '',
+      error: true,
+      message: error.message,
+    };
   }
 };
 
@@ -223,8 +244,9 @@ export default {
   getUserForPassportGoogleLoginStrategy,
   getUserForPassportGoogleSignUpStrategy,
   generateAndWriteRefreshToken,
-  getUserByUserName,
+  getUserByUserId,
   generateAuthToken,
+  refreshTokenForUser,
   signUpWithEmailPassword,
   verifySignUpEmail,
 };

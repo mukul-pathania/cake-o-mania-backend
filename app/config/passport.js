@@ -17,9 +17,7 @@ const SetUpPassportAuth = (passport) => {
       },
       async (jwt_payload, done) => {
         try {
-          const user = await AuthService.getUserByUserName(
-            jwt_payload.username,
-          );
+          const user = await AuthService.getUserByUserId(jwt_payload.user_id);
           return done(null, user);
         } catch (error) {
           logger.log('error', 'Error in jwt passport: %O', error);
