@@ -88,6 +88,29 @@ const signUpWithEmailPassword = async (
   }
 };
 
+const verifySignUpEmail = async (token) => {
+  try {
+    const { user_id } = JWT.decode(token);
+    const user = await User.findOne({
+      _id: user_id,
+      confirmation_token: token,
+    });
+    if (!user) return { message: 'Invalid token', error: true };
+    JWT.verify(token, user.encrypted_password);
+    await User.updateOne(
+      { _id: user_id },
+      { confirmation_token: null, confirmed_at: new Date() },
+    );
+    return { message: 'Email verified successfully', error: false };
+  } catch (error) {
+    logger.log('error', 'authservice:auth:verifysignupemail %O', error);
+    return {
+      message: 'An error occured while processing your request',
+      error: true,
+    };
+  }
+};
+
 const getUserForPassportGoogleSignUpStrategy = async (
   email,
   firstName,
@@ -203,4 +226,5 @@ export default {
   getUserByUserName,
   generateAuthToken,
   signUpWithEmailPassword,
+  verifySignUpEmail,
 };

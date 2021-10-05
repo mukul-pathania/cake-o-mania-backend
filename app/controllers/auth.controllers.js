@@ -63,6 +63,24 @@ const signUpWithEmailPassword = async (req, res) => {
   }
 };
 
+const verifySignUpEmail = async (req, res) => {
+  try {
+    const { token } = req.body;
+    if (!token)
+      return res
+        .status(401)
+        .json({ message: 'No token provided', error: true });
+    const response = await AuthService.verifySignUpEmail(token);
+    return res.status(response.error ? 401 : 200).json(response);
+  } catch (error) {
+    logger.log('error', 'userservice:verifysignupemail  %O', error);
+    return res.status(401).json({
+      message: 'An error occured while processing your request',
+      error: true,
+    });
+  }
+};
+
 const logout = (req, res) => {
   req.logOut();
   // Remove the refresh_token
@@ -153,4 +171,5 @@ export default {
   googleSignUpCallback,
   logout,
   verify,
+  verifySignUpEmail,
 };
