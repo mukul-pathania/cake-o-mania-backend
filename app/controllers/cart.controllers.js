@@ -11,4 +11,9 @@ const addToCart = async (req, res) => {
   return res.json({ data_sent: response });
 };
 
-export default { getCart, addToCart };
+const removeFromCart = async (req, res) => {
+  const response = await cartService.removeFromCart(req.body);
+  return res.json({ message: response });
+};
+
+export default { getCart, addToCart, removeFromCart };

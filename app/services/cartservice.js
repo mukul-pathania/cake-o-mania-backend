@@ -2,7 +2,6 @@ import Cart from '../models/Cart.js';
 
 const getCartData = async (reqdata) => {
   const { user } = reqdata;
-  // const dbdata = await Cart.find({ user: '5d6ede6a0ba62570afcedd3a' });//dummy user
   const dbdata = await Cart.find({ user: user });
 
   return dbdata;
@@ -29,4 +28,11 @@ const addToCart = async (data) => {
   }
 };
 
-export default { getCartData, addToCart };
+const removeFromCart = async (data) => {
+  const productid = data._id;
+  console.log(productid);
+  const response = await Cart.deleteOne({ _id: productid });
+  return response;
+};
+
+export default { getCartData, addToCart, removeFromCart };
