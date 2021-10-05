@@ -103,7 +103,7 @@ const verifySignUpEmail = async (token) => {
     );
     return { message: 'Email verified successfully', error: false };
   } catch (error) {
-    logger.log('error', 'authservice:auth:verifysignupemail %O', error);
+    logger.log('error', 'authservice:verifysignupemail %O', error);
     return {
       message: 'An error occured while processing your request',
       error: true,
@@ -209,7 +209,7 @@ const getUserByUserId = async (user_id) => {
   try {
     return await User.findOne({ _id: user_id });
   } catch (error) {
-    logger.log('error', 'userservice:auth:getuserbyuserid %O', error);
+    logger.log('error', 'authservice:getuserbyuserid %O', error);
     return null;
   }
 };
@@ -239,6 +239,49 @@ const refreshTokenForUser = async (refreshToken) => {
   }
 };
 
+const sendResetPasswordMail = async (email) => {
+  try {
+    const user = await User.findOne({ email: email, provider: 'EMAIL' });
+    if (!user || (user && !user.confirmed_at))
+      return {
+        message: 'Check your email for further instructions',
+        error: false,
+      };
+    await EmailService.sendPasswordResetEmail(user);
+    return {
+      message: 'Check your email for further instructions',
+      error: false,
+    };
+  } catch (error) {
+    logger.log('error', 'userservice:auth:sendresetpasswordmail %O', error);
+    return {
+      message: 'An error occured while processing your request',
+      error: true,
+    };
+  }
+};
+
+const resetPassword = async (token, password) => {
+  try {
+    const { user_id } = JWT.decode(token);
+    const user = await User.findOne({ _id: user_id, recovery_token: token });
+    if (!user) return { message: 'Invalid token', error: true };
+    JWT.verify(token, user.encrypted_password);
+    const hashed = await bcrypt.hash(password, 15);
+    await User.updateOne(
+      { _id: user_id },
+      { recovery_token: null, encrypted_password: hashed },
+    );
+    return { message: 'Password reset successfully', error: false };
+  } catch (error) {
+    logger.log('error', 'authservice:resetpassword %O', error);
+    return {
+      message: 'An error occured while processing your request',
+      error: true,
+    };
+  }
+};
+
 export default {
   getUserForPassportLocalStrategy,
   getUserForPassportGoogleLoginStrategy,
@@ -249,4 +292,6 @@ export default {
   refreshTokenForUser,
   signUpWithEmailPassword,
   verifySignUpEmail,
+  sendResetPasswordMail,
+  resetPassword,
 };

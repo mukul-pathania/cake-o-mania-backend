@@ -34,4 +34,29 @@ const sendSignUpEmail = async (user) => {
   }
 };
 
-export default { sendSignUpEmail };
+const sendPasswordResetEmail = async (user) => {
+  try {
+    const token = JWT.sign({ user_id: user._id }, user.encrypted_password);
+    await User.updateOne(
+      { _id: user._id },
+      { recovery_token: token, recovery_sent_at: new Date() },
+    );
+    const link = `${config.CLIENT_URL}/auth/password/reset/change#token=${token}`;
+    const HTML = `
+    <h1>Hello ${user.first_name} ${user.last_name}</h1>
+    <p>Click <a href=${link}>here</a> to reset your email</p>
+    `;
+    const msg = {
+      to: user.email,
+      from: config.EMAIL_USER,
+      subject: 'Reset your password',
+      html: HTML,
+    };
+    const info = await sendgrid.send(msg);
+    logger.log('info', 'emailservice:sendresetpasswordemail %O', info);
+  } catch (error) {
+    logger.log('error', 'emailservice:sendresetpasswordemail %O', error);
+  }
+};
+
+export default { sendSignUpEmail, sendPasswordResetEmail };

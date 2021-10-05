@@ -182,6 +182,48 @@ const refreshTokenForUser = async (req, res) => {
   return res.json(response);
 };
 
+const sendPasswordResetEmail = async (req, res) => {
+  try {
+    const { email } = req.body;
+    if (!email)
+      return res
+        .status(401)
+        .json({ message: 'No email provided', error: true });
+    const response = await AuthService.sendResetPasswordMail(email);
+    return res.json({ message: response.message, error: response.error });
+  } catch (error) {
+    logger.log('error', 'authcontroller:sendpasswordresetemail  %O', error);
+    return res.status(401).json({
+      message: 'An error occured while processing your request',
+      error: true,
+    });
+  }
+};
+
+const resetPassword = async (req, res) => {
+  try {
+    const { token, password } = req.body;
+    if (!token || !password)
+      return res.status(401).json({
+        message: 'Token and password is required',
+        error: true,
+      });
+    if (password.length < 6)
+      return res.status(401).json({
+        message: 'Password should have length of atleast 6',
+        error: true,
+      });
+    const response = await AuthService.resetPassword(token, password);
+    return res.status(response.error ? 401 : 200).json(response);
+  } catch (error) {
+    logger.log('error', 'authcontroller:resetpassword %O', error);
+    return res.json({
+      message: 'An error occured while processing your request',
+      error: true,
+    });
+  }
+};
+
 export default {
   loginWithEmailPassword,
   signUpWithEmailPassword,
@@ -191,4 +233,6 @@ export default {
   refreshTokenForUser,
   verify,
   verifySignUpEmail,
+  sendPasswordResetEmail,
+  resetPassword,
 };

@@ -41,4 +41,8 @@ router.get('/google/login/callback', authControllers.googleLoginCallback);
 
 router.get('/refresh_token', authControllers.refreshTokenForUser);
 
+router.post('/password/reset/email', authControllers.sendPasswordResetEmail);
+
+router.post('/password/reset/change', authControllers.resetPassword);
+
 export default router;
