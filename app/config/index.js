@@ -20,4 +20,6 @@ export default {
   REFRESH_TOKEN_VALIDITY_DAYS: process.env.REFRESH_TOKEN_VALIDITY_DAYS || '2',
   REFRESH_TOKEN_SECRET:
     process.env.REFRESH_TOKEN_SECRET || 'asdjfuioh809jh2yionaer89nvadsol',
+  SENDGRID_API_KEY: process.env.SENDGRID_API_KEY,
+  EMAIL_USER: process.env.EMAIL_USER,
 };

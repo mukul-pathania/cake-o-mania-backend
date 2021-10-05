@@ -1,5 +1,6 @@
 import bcrypt from 'bcrypt';
 import User from '../models/User.js';
+import EmailService from './emailservice.js';
 import logger from '../util/logger.js';
 import config from '../config/index.js';
 import JWT from 'jsonwebtoken';
@@ -76,7 +77,7 @@ const signUpWithEmailPassword = async (
       provider: 'EMAIL',
     });
     logger.info(`New user created ${created_user}`);
-    // EmailService.sendSignUpEmail(created_user);
+    await EmailService.sendSignUpEmail(created_user);
     return { error: false, message: 'User signed up successfully' };
   } catch (error) {
     logger.log('error', 'authservice:signupwithemailpassword %O', error);
