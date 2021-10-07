@@ -1,14 +1,15 @@
 import Cart from '../models/Cart.js';
 
-const getCartData = async (reqdata) => {
-  const { user } = reqdata;
-  const dbdata = await Cart.find({ user: user });
-
-  return dbdata;
+const getCartData = async (user) => {
+  try {
+    const dbdata = await Cart.find({ user: user });
+    return dbdata;
+  } catch (error) {
+    return { message: error };
+  }
 };
 
-const addToCart = async (data) => {
-  const { item, user, total_price } = data;
+const addToCart = async (item, user, total_price) => {
   console.log('items : ', item);
   console.log('user : ', user);
   console.log('total_price : ', total_price);
@@ -28,10 +29,8 @@ const addToCart = async (data) => {
   }
 };
 
-const removeFromCart = async (data) => {
-  const productid = data._id;
-  console.log(productid);
-  const response = await Cart.deleteOne({ _id: productid });
+const removeFromCart = async (id) => {
+  const response = await Cart.deleteOne({ _id: id });
   return response;
 };
 
