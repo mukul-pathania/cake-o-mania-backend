@@ -1,4 +1,3 @@
-// import config from './config/index.js';
 import cartService from '../services/cartservice.js';
 
 const getCart = async (req, res) => {
