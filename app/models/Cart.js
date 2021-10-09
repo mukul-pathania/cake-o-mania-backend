@@ -2,7 +2,7 @@ import mongoose from 'mongoose';
 
 const _cakeSchema = new mongoose.Schema({
   cake: { type: mongoose.Schema.Types.ObjectId, ref: 'Cake' },
-  quantity: { type: Number, required: true },
+  quantity: { type: Number, required: false, default: 1 },
   message: { type: String },
 });
 

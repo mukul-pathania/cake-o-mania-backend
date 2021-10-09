@@ -2,7 +2,7 @@ import Cart from '../models/Cart.js';
 
 const getCartData = async (user) => {
   try {
-    const dbdata = await Cart.find({ user: user });
+    const dbdata = await Cart.find({ user: '61619d5d02cc6947f600e03c' });
     return dbdata;
   } catch (error) {
     return { message: error };
@@ -10,7 +10,7 @@ const getCartData = async (user) => {
 };
 
 const addToCart = async (item, user, total_price) => {
-  console.log(user);
+  console.log(item);
   const cart = new Cart({
     items: item,
     user: user,
@@ -19,7 +19,7 @@ const addToCart = async (item, user, total_price) => {
 
   try {
     const response = await cart.save();
-    return response;
+    return { respose: response, user: user };
   } catch (error) {
     const response = { message: error };
     return response;
@@ -27,7 +27,7 @@ const addToCart = async (item, user, total_price) => {
 };
 
 const removeFromCart = async (id) => {
-  const response = await Cart.deleteOne({ _id: id });
+  const response = await Cart.deleteOne({ _id: '61619d5d02cc6947f600e03c' });
   return response;
 };
 

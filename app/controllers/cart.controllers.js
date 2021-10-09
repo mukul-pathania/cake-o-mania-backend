@@ -1,6 +1,4 @@
 import cartService from '../services/cartservice.js';
-import authMiddleware from '../middleware/auth.middleware.js';
-import authControllers from './auth.controllers.js';
 
 const getCart = async (req, res) => {
   const { user } = req.body;
@@ -9,9 +7,9 @@ const getCart = async (req, res) => {
 };
 
 const addToCart = async (req, res) => {
-  const { item, total_price } = req.body;
-  const {user} = req.user;
-  const response = await cartService.addToCart(item, user, total_price);
+  const { items, total_price } = req.body;
+  const user = '61619d5d02cc6947f600e03c';
+  const response = await cartService.addToCart(items, user, total_price);
   return res.json({ data_sent: response });
 };
 
