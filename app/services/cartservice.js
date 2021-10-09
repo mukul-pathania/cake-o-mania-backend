@@ -10,10 +10,7 @@ const getCartData = async (user) => {
 };
 
 const addToCart = async (item, user, total_price) => {
-  console.log('items : ', item);
-  console.log('user : ', user);
-  console.log('total_price : ', total_price);
-
+  console.log(user);
   const cart = new Cart({
     items: item,
     user: user,
