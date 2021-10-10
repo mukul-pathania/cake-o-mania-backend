@@ -11,19 +11,6 @@ router.get('/cakes', async (req, res) => {
   }
 });
 
-router.post('/getcake', async (req, res) => {
-  try {
-    const { id } = req.body;
-    console.log(id);
-    const cake = await Cake.find({ _id: id });
-    console.log(cake);
-    res.json(cake);
-    return 'cake';
-  } catch (err) {
-    res.send('Error ' + err);
-  }
-});
-
 router.get('/cakes/:limit', async (req, res) => {
   try {
     const number = parseInt(req.params.limit);
@@ -34,15 +21,15 @@ router.get('/cakes/:limit', async (req, res) => {
   }
 });
 
-// router.get('/cake/:id', async (req, res) => {
-//   try {
-//     const id = req.params.id;
-//     // const cake = await Cake.find({ _id: id });
-//     console.log(id);
-//     // res.json(cake);
-//   } catch (error) {
-//     console.log(error);
-//   }
-// });
+router.get('/cake/:id', async (req, res) => {
+  try {
+    const id = req.params.id;
+    const cake = await Cake.find({ _id: id });
+    console.log(id);
+    res.json(cake);
+  } catch (error) {
+    console.log(error);
+  }
+});
 
 export default router;

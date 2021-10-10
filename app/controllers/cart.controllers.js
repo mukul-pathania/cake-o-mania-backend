@@ -1,14 +1,18 @@
 import cartService from '../services/cartservice.js';
+import User from '../models/User.js';
 
 const getCart = async (req, res) => {
-  const { user } = req.body;
-  const data = await cartService.getCartData(user);
+  const user = req.params.user;
+  const userdata = await User.findOne({
+    email: user,
+  });
+  console.log(userdata._id);
+  const data = await cartService.getCartData(userdata._id);
   return res.json({ data: data });
 };
 
 const addToCart = async (req, res) => {
-  const { items, total_price } = req.body;
-  const user = '61619d5d02cc6947f600e03c';
+  const { items, user, total_price } = req.body;
   const response = await cartService.addToCart(items, user, total_price);
   return res.json({ data_sent: response });
 };
