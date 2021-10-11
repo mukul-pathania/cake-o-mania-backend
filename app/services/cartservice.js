@@ -10,10 +10,7 @@ const getCartData = async (user) => {
 };
 
 const addToCart = async (item, user, total_price) => {
-  console.log('items : ', item);
-  console.log('user : ', user);
-  console.log('total_price : ', total_price);
-
+  console.log(item);
   const cart = new Cart({
     items: item,
     user: user,
@@ -22,15 +19,15 @@ const addToCart = async (item, user, total_price) => {
 
   try {
     const response = await cart.save();
-    return response;
+    return { respose: response, user: user };
   } catch (error) {
     const response = { message: error };
     return response;
   }
 };
 
-const removeFromCart = async (id) => {
-  const response = await Cart.deleteOne({ _id: id });
+const removeFromCart = async (user, id) => {
+  const response = await Cart.deleteOne({ user: user, 'items.0._id': id });
   return response;
 };
 
