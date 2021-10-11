@@ -1,12 +1,9 @@
 import cartService from '../services/cartservice.js';
-import User from '../models/User.js';
+import userService from '../services/userservice.js';
 
 const getCart = async (req, res) => {
   const user = req.params.user;
-  const userdata = await User.findOne({
-    email: user,
-  });
-  console.log(userdata._id);
+  const userdata = await userService.getuser(user);
   const data = await cartService.getCartData(userdata._id);
   return res.json({ data: data });
 };
