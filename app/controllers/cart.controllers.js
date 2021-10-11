@@ -13,14 +13,14 @@ const getCart = async (req, res) => {
 
 const addToCart = async (req, res) => {
   const { items, user, total_price } = req.body;
-  console.log("user",  user);
+  console.log('user', user);
   const response = await cartService.addToCart(items, user, total_price);
   return res.json({ data_sent: response });
 };
 
 const removeFromCart = async (req, res) => {
-  const productid = req.body._id;
-  const response = await cartService.removeFromCart(productid);
+  const { user, id } = req.body;
+  const response = await cartService.removeFromCart(user, id);
   return res.json({ message: response });
 };
 

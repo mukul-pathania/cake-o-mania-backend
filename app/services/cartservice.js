@@ -26,8 +26,8 @@ const addToCart = async (item, user, total_price) => {
   }
 };
 
-const removeFromCart = async (id) => {
-  const response = await Cart.deleteOne({ _id: id });
+const removeFromCart = async (user, id) => {
+  const response = await Cart.deleteOne({ user: user, 'items.0._id': id });
   return response;
 };
 
