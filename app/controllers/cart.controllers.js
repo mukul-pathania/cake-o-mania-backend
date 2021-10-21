@@ -1,17 +1,16 @@
 import cartService from '../services/cartservice.js';
-import userService from '../services/userservice.js';
 
 const getCart = async (req, res) => {
-  const user = req.params.user;
-  const userdata = await userService.getuser(user);
-  const data = await cartService.getCartData(userdata._id);
-  return res.json({ data: data });
+  const { _id: userid } = req.user;
+  const data = await cartService.getCartData(userid);
+  return res.json({ data });
 };
 
 const addToCart = async (req, res) => {
-  const { items, user, total_price } = req.body;
-  console.log('user', user);
-  const response = await cartService.addToCart(items, user, total_price);
+  const { items, total_price } = req.body;
+  const { _id: userid } = req.user;
+  console.log('user', req.user);
+  const response = await cartService.addToCart(items, userid, total_price);
   return res.json({ data_sent: response });
 };
 

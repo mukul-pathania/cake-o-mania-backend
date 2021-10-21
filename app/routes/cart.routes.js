@@ -1,8 +1,10 @@
 import { Router } from 'express';
-const router = Router();
 import cartControllers from '../controllers/cart.controllers.js';
+import authMiddleware from '../middleware/auth.middleware.js';
+const router = Router();
 
-router.get('/getcart/:user', cartControllers.getCart);
+router.use(authMiddleware.authCheckMiddleware);
+router.get('/getcart', cartControllers.getCart);
 router.post('/addtocart', cartControllers.addToCart);
 router.post('/delete', cartControllers.removeFromCart);
 
