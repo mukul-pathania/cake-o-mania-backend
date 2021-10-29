@@ -7,10 +7,9 @@ const getCart = async (req, res) => {
 };
 
 const addToCart = async (req, res) => {
-  const { items, total_price } = req.body;
+  const { items } = req.body;
   const { _id: userid } = req.user;
-  console.log('user', req.user);
-  const response = await cartService.addToCart(items, userid, total_price);
+  const response = await cartService.addToCart(items, userid);
   return res.json({ data_sent: response });
 };
 

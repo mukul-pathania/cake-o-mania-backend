@@ -16,22 +16,25 @@ const getCartData = async (userid) => {
   }
 };
 
-const addToCart = async (item, userid, total_price) => {
-  console.log('CartItem :', item);
-
+const addToCart = async (items, userid) => {
+  console.log('CartItem :', items);
   try {
     const usercart = await Cart.findOne({ user: userid });
     if (!usercart) {
+      const cart_total = get_cart_total(items);
       const cart = new Cart({
-        items: item,
+        items: items,
         user: userid,
-        total_price: total_price,
+        total_price: cart_total,
       });
       const response = await cart.save();
       return { respose: response, user: userid };
     } else {
-      usercart.items.push(item);
-      usercart.total_price += total_price;
+      const cart_total = get_cart_total(items);
+      items.forEach((item) => {
+        usercart.items.push(item);
+      });
+      usercart.total_price += cart_total;
       usercart.save();
     }
   } catch (error) {
@@ -43,6 +46,16 @@ const addToCart = async (item, userid, total_price) => {
 const removeFromCart = async (user, id) => {
   const response = await Cart.deleteOne({ user: user, 'items.0._id': id });
   return response;
+};
+
+const get_cart_total = (items) => {
+  let cart_total = 0;
+  items.forEach((item) => {
+    console.log(item);
+    cart_total = cart_total + item.price_per_half_kg;
+  });
+  console.log(cart_total);
+  return cart_total;
 };
 
 export default { getCartData, addToCart, removeFromCart };
