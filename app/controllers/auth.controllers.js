@@ -101,6 +101,7 @@ const verify = (req, res) => {
         email: req.user.email,
         firstName: req.user.first_name,
         lastName: req.user.last_name,
+        mobileNo: req.user.mobile_no,
         error: false,
       })
       .status(200);
