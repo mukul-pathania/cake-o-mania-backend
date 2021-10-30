@@ -43,9 +43,21 @@ const addToCart = async (items, userid) => {
   }
 };
 
-const removeFromCart = async (user, id) => {
-  const response = await Cart.deleteOne({ user: user, 'items.0._id': id });
-  return response;
+const removeFromCart = async (userid, id) => {
+  try {
+    const usercart = await Cart.findOne({ user: userid });
+    usercart.items.forEach((item) => {
+      if (item._id == id) {
+        usercart.items.remove(item);
+        console.log(item);
+      }
+    });
+    const response = await usercart.save();
+    return response;
+  } catch (error) {
+    const response = { message: error };
+    return response;
+  }
 };
 
 const get_cart_total = (items) => {
