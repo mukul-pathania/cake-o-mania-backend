@@ -14,8 +14,9 @@ const addToCart = async (req, res) => {
 };
 
 const removeFromCart = async (req, res) => {
-  const { user, id } = req.body;
-  const response = await cartService.removeFromCart(user, id);
+  const { id } = req.body;
+  const { _id: userid } = req.user;
+  const response = await cartService.removeFromCart(userid, id);
   return res.json({ message: response });
 };
 
