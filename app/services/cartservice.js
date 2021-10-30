@@ -21,7 +21,7 @@ const addToCart = async (items, userid) => {
   try {
     const usercart = await Cart.findOne({ user: userid });
     if (!usercart) {
-      const cart_total = get_cart_total(items);
+      const cart_total = await get_cart_total(items);
       const cart = new Cart({
         items: items,
         user: userid,
@@ -30,7 +30,7 @@ const addToCart = async (items, userid) => {
       const response = await cart.save();
       return { respose: response, user: userid };
     } else {
-      const cart_total = get_cart_total(items);
+      const cart_total = await get_cart_total(items);
       items.forEach((item) => {
         usercart.items.push(item);
       });
@@ -46,12 +46,11 @@ const addToCart = async (items, userid) => {
 const removeFromCart = async (userid, id) => {
   try {
     const usercart = await Cart.findOne({ user: userid });
-    usercart.items.forEach((item) => {
-      if (item._id == id) {
-        usercart.items.remove(item);
-        console.log(item);
-      }
-    });
+    let item = usercart.items.find((item) => item._id == id);
+    console.log(item, usercart.items);
+    usercart.items.remove(item);
+    const price = await get_cart_total(usercart.items);
+    usercart.total_price = price;
     const response = await usercart.save();
     return response;
   } catch (error) {
@@ -60,13 +59,17 @@ const removeFromCart = async (userid, id) => {
   }
 };
 
-const get_cart_total = (items) => {
+const get_cart_total = async (items) => {
   let cart_total = 0;
-  items.forEach((item) => {
-    console.log(item);
-    cart_total = cart_total + item.price_per_half_kg;
+  let ids = items.map((item) => item._id);
+  const cakes = await Cake.find({ _id: { $in: ids } });
+  let cakedata = {};
+  cakes.forEach((cake) => {
+    cakedata[cake._id] = cake;
   });
-  console.log(cart_total);
+  items.forEach((item) => {
+    cart_total += cakedata[item._id].price_per_half_kg;
+  });
   return cart_total;
 };
 
